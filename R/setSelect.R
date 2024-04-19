@@ -4,7 +4,7 @@
 #' between the stations can be specified.  Additional details about each set can be added (such as 
 #' which NAFO zones or marine protected area a set falls in) can be added through provision of sf 
 #' files to the parameters \code{addExtData1_sf} and/or \code{addExtData2_sf}.   Additionally, 
-#' certain areas can be set to exclude stations the inclusion of an additional shapefile.
+#' certain areas can be set to exclude stations the inclusion of an additional sf object.
 #' @param stationData default is \code{NULL}.  This is the path to a csv file containing the all of 
 #' the strata for which stations should be generated.  In addition to the strata, this file must 
 #' also include the fields  \code{"PRIMARY"}, \code{"SECONDARY"}, and \code{"ALTERNATE"}.  These 
@@ -19,12 +19,12 @@
 #'       5Z3       5         2         2
 #'       5Z4       4         2         2
 #'
-#' @param stationData_StratField default is \code{"STRATUM"}.  This is just the name of the field 
+#' @param stationDataField default is \code{"STRATUM"}.  This is just the name of the field 
 #' that contains the strata.  For the example above, this would be "STRATUM".
-#' @param strata_sf default is \code{NULL}. This should point to the ".shp" file of a shapefile for 
-#' the strata to use. This shapefile must have a field that has values identical to those found in 
-#' the \code{"stationData_StratField"} within the \code{"stationData"} file.
-#' @param strata_sf_StratField default is \code{NULL}.  This is the name of the field within 
+#' @param strata_sf default is \code{NULL}. This should point to an sf object the strata to use. 
+#' This object must have a field that has values identical to those found in  the 
+#' \code{"stationDataField"} within the \code{"stationData"} file.
+#' @param strataField default is \code{NULL}.  This is the name of the field within 
 #' \code{strata_sf} that contains the identifier for the strata.  Continuing with the example above,
 #' this field would contain values including "5Z1", "5Z2", "5Z3" and "5Z4".
 #' @param localCRS default is \code{2961}.  In order to create sampling stations, the function 
@@ -54,8 +54,8 @@
 #' fit the requested number of stations into each strata. 
 #' @examples \dontrun{
 #' Example <-setSelect(stationData = "C:/Users/McMahonM/Downloads/Summer_4VWX5Z_Stations2024.csv",
-#'                     stationData_StratField = "STRATUM",
-#'                     strata_sf = Mar.data::Strata_Mar_sf,strata_sf_StratField = "StrataID",
+#'                     stationDataField = "STRATUM",
+#'                     strata_sf = Mar.data::Strata_Mar_sf,strataField = "StrataID",
 #'                     addExtData1_sf = Mar.data::NAFOSubunits_sf, 
 #'                     addExtDataFields1 = "NAFO",
 #'                     addExtData2_sf = oceansSf, 
@@ -68,30 +68,28 @@
 #' @export
 
 setSelect <- function(
-    stationData = NULL,
-    stationData_StratField = NULL,
-    strata_sf = NULL,
-    strata_sf_StratField = NULL,
+    stationData = NULL, stationDataField = NULL,
+    strata_sf = NULL, strataField = NULL,
+    addExtData1_sf = NULL, addExtDataFields1 =NULL,
+    addExtData2_sf=NULL, addExtDataFields2 =NULL,
     avoid_sf = NULL,
     localCRS = 2961,
     minDistNM = 4,
-    addExtData1_sf = NULL, addExtDataFields1 =NULL,
-    addExtData2_sf=NULL, addExtDataFields2 =NULL,
     tryXTimes = 100){
   
   timestamp <- format(Sys.time(),"%Y%m%d_%H%M")
   TYPE <- LABEL <- polygon_ <- NA 
   localCRS_ <- localCRS
   stationData_ <- utils::read.csv(stationData)
-  stationData_StratField_ <- stationData_StratField
+  stationDataField_ <- stationDataField
   strata_sf_ <- strata_sf %>% sf::st_transform(crs = localCRS_) 
-  strata_sf_StratField_ <- strata_sf_StratField
+  strataField_ <- strataField
   #referencing fields via variables is annoying, so add a field of a known name to each
-  stationData_$filterField_ <- stationData_[,stationData_StratField]
-  strata_sf_$filterField_ <- sf::st_drop_geometry(strata_sf_[, strata_sf_StratField_])[,1]
+  stationData_$filterField_ <- stationData_[,stationDataField]
+  strata_sf_$filterField_ <- sf::st_drop_geometry(strata_sf_[, strataField_])[,1]
   #delete the user-selected fields so they don't  cause issues with merging
-  stationData_[,stationData_StratField] <- NULL
-  strata_sf_[, stationData_StratField_]<- NULL
+  stationData_[,stationDataField] <- NULL
+  strata_sf_[, stationDataField_]<- NULL
   
   #buffer is in meters, and is 1/2 the min distance
   buffSize <- (minDistNM * 1852)

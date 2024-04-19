@@ -9,3 +9,4 @@ Summer_2024<- setSelect(stationData = "C:/Users/McMahonM/Downloads/Summer_4VWX5Z
                         addExtData2_sf = oceansSf, addExtDataFields2 = c("NAME_E","ZONE_E", "URL_E", "REGULATION"), 
                         avoid_sf = avoidAreaSf)
 
+head(avoidAreaSf)

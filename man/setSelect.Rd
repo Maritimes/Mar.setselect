@@ -6,16 +6,16 @@
 \usage{
 setSelect(
   stationData = NULL,
-  stationData_StratField = NULL,
+  stationDataField = NULL,
   strata_sf = NULL,
-  strata_sf_StratField = NULL,
-  avoid_sf = NULL,
-  localCRS = 2961,
-  minDistNM = 4,
+  strataField = NULL,
   addExtData1_sf = NULL,
   addExtDataFields1 = NULL,
   addExtData2_sf = NULL,
   addExtDataFields2 = NULL,
+  avoid_sf = NULL,
+  localCRS = 2961,
+  minDistNM = 4,
   tryXTimes = 100
 )
 }
@@ -34,29 +34,16 @@ an example of how this file might look:
       5Z3       5         2         2
       5Z4       4         2         2}
 
-\item{stationData_StratField}{default is \code{"STRATUM"}.  This is just the name of the field 
+\item{stationDataField}{default is \code{"STRATUM"}.  This is just the name of the field 
 that contains the strata.  For the example above, this would be "STRATUM".}
 
-\item{strata_sf}{default is \code{NULL}. This should point to the ".shp" file of a shapefile for 
-the strata to use. This shapefile must have a field that has values identical to those found in 
-the \code{"stationData_StratField"} within the \code{"stationData"} file.}
+\item{strata_sf}{default is \code{NULL}. This should point to an sf object the strata to use. 
+This object must have a field that has values identical to those found in  the 
+\code{"stationDataField"} within the \code{"stationData"} file.}
 
-\item{strata_sf_StratField}{default is \code{NULL}.  This is the name of the field within 
+\item{strataField}{default is \code{NULL}.  This is the name of the field within 
 \code{strata_sf} that contains the identifier for the strata.  Continuing with the example above,
 this field would contain values including "5Z1", "5Z2", "5Z3" and "5Z4".}
-
-\item{avoid_sf}{default is \code{NULL}. This is and sf object containing polygons of the areas 
-where stations should not be located.   For example, one might populate a file with areas known 
-to contain unexploded ordinance, or areas where bottom contact  is forbidden.  No stations will 
-be generated where polygons exist in this file.}
-
-\item{localCRS}{default is \code{2961}.  In order to create sampling stations, the function 
-reprojects any spatial data to a locally appropriate projection.  The default value is UTM Zone 
-20N, and is appropriate only for Maritimes data.  Any valid CRS can be entered here, and should 
-be appropriate for your data.}
-
-\item{minDistNM}{default is \code{4}. This is the minimum required distance between the sets.  By
-default, sets will be no closer than 4 nautical miles from each other.}
 
 \item{addExtData1_sf}{default is \code{NULL}.  If additional information should be added to 
 the output for each set, an sf object can be provided here.  For example, one might provide 
@@ -75,6 +62,19 @@ for including information from an additional sf object.}
 set falls within a particular polygon, the value for that polygon from these fields will be 
 provided as part of the output.}
 
+\item{avoid_sf}{default is \code{NULL}. This is and sf object containing polygons of the areas 
+where stations should not be located.   For example, one might populate a file with areas known 
+to contain unexploded ordinance, or areas where bottom contact  is forbidden.  No stations will 
+be generated where polygons exist in this file.}
+
+\item{localCRS}{default is \code{2961}.  In order to create sampling stations, the function 
+reprojects any spatial data to a locally appropriate projection.  The default value is UTM Zone 
+20N, and is appropriate only for Maritimes data.  Any valid CRS can be entered here, and should 
+be appropriate for your data.}
+
+\item{minDistNM}{default is \code{4}. This is the minimum required distance between the sets.  By
+default, sets will be no closer than 4 nautical miles from each other.}
+
 \item{tryXTimes}{default is \code{100}  By default, the script will make this many attempts to 
 fit the requested number of stations into each strata.}
 }
@@ -84,13 +84,13 @@ number of stations of 3 different categories can be selected, and the minimum di
 between the stations can be specified.  Additional details about each set can be added (such as 
 which NAFO zones or marine protected area a set falls in) can be added through provision of sf 
 files to the parameters \code{addExtData1_sf} and/or \code{addExtData2_sf}.   Additionally, 
-certain areas can be set to exclude stations the inclusion of an additional shapefile.
+certain areas can be set to exclude stations the inclusion of an additional sf object.
 }
 \examples{
 \dontrun{
 Example <-setSelect(stationData = "C:/Users/McMahonM/Downloads/Summer_4VWX5Z_Stations2024.csv",
-                    stationData_StratField = "STRATUM",
-                    strata_sf = Mar.data::Strata_Mar_sf,strata_sf_StratField = "StrataID",
+                    stationDataField = "STRATUM",
+                    strata_sf = Mar.data::Strata_Mar_sf,strataField = "StrataID",
                     addExtData1_sf = Mar.data::NAFOSubunits_sf, 
                     addExtDataFields1 = "NAFO",
                     addExtData2_sf = oceansSf, 
