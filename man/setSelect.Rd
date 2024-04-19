@@ -14,6 +14,8 @@ setSelect(
   addExtData2_sf = NULL,
   addExtDataFields2 = NULL,
   avoid_sf = NULL,
+  writexls = TRUE,
+  writegpkg = TRUE,
   localCRS = 2961,
   minDistNM = 4,
   tryXTimes = 100
@@ -66,6 +68,12 @@ provided as part of the output.}
 where stations should not be located.   For example, one might populate a file with areas known 
 to contain unexploded ordinance, or areas where bottom contact  is forbidden.  No stations will 
 be generated where polygons exist in this file.}
+
+\item{writexls}{default is \code{TRUE}. Write the results to an excel file in your working 
+directory?}
+
+\item{writegpkg}{default is \code{TRUE}. Write the results to a spatial gpkg file in your 
+working directory? (for use in a)}
 
 \item{localCRS}{default is \code{2961}.  In order to create sampling stations, the function 
 reprojects any spatial data to a locally appropriate projection.  The default value is UTM Zone 

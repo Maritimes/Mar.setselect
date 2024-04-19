@@ -19,3 +19,7 @@ Encoding: UTF-8
 License: MIT + file LICENSE
 URL: https://github.com/Maritimes/Mar.setselect/
 RoxygenNote: 7.2.3
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

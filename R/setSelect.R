@@ -50,6 +50,10 @@
 #' \code{addExtData2_sf}, this should correspond with one or more fields within that file.  If a 
 #' set falls within a particular polygon, the value for that polygon from these fields will be 
 #' provided as part of the output.
+#' @param writexls  default is \code{TRUE}. Write the results to an excel file in your working 
+#' directory?
+#' @param writegpkg  default is \code{TRUE}. Write the results to a spatial gpkg file in your 
+#'  working directory? (for use in a)
 #' @param tryXTimes default is \code{100}  By default, the script will make this many attempts to 
 #' fit the requested number of stations into each strata. 
 #' @examples \dontrun{
@@ -73,6 +77,8 @@ setSelect <- function(
     addExtData1_sf = NULL, addExtDataFields1 =NULL,
     addExtData2_sf=NULL, addExtDataFields2 =NULL,
     avoid_sf = NULL,
+    writexls = TRUE,
+    writegpkg =TRUE,
     localCRS = 2961,
     minDistNM = 4,
     tryXTimes = 100){
@@ -258,9 +264,9 @@ setSelect <- function(
   
   #write files
   # sf::st_write(stations, paste0("stations_",timestamp,".shp"), delete_layer = TRUE) 
-  xlsx::write.xlsx2(as.data.frame(stations %>% sf::st_drop_geometry()) , paste0("stations_",timestamp,".xlsx"), sheetName = "stations", col.names = TRUE, row.names = FALSE, append = FALSE)
-  stations <- sf::st_write(stations, dsn = paste0(getwd(), "/setSelect.gpkg"), "stations", append = F, delete.dsn=T)
-  message("wrote files to ", getwd())
+  if (writexls) xlsx::write.xlsx2(as.data.frame(stations %>% sf::st_drop_geometry()) , paste0("stations_",timestamp,".xlsx"), sheetName = "stations", col.names = TRUE, row.names = FALSE, append = FALSE)
+  if (writegpkg) stations <- sf::st_write(stations, dsn = paste0(getwd(), "/setSelect.gpkg"), "stations", append = F, delete.dsn=T)
+  if (writexls | writegpkg) message("wrote excel and/or gpkg files to ", getwd())
   return(stations)
 }
 

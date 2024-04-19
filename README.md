@@ -40,6 +40,11 @@ troublesome wrecks or areas of unexploded ordinance or  might exist within the s
 submitting an sf object to the parameter "avoid_sf", the function will ensure that no sets are 
 generated within that footprint.
 
+### Outputs
+By default, this function will return an sf object of the results, as well as writing both an xls 
+and a (GIS) gpkg file to the current working directory.  These outputs can be omitted by changing 
+either writexls or writegpkg to FALSE.
+
 ### Additional Details
 In cases where a particular strata is geographically small, but a large number of sets is desired, 
 the function will try 100 times to fit the requested number of sets.  The number of attempts can be 
