@@ -5,13 +5,14 @@
 #' which NAFO zones or marine protected area a set falls in) can be added through provision of sf 
 #' files to the parameters \code{addExtData1_sf} and/or \code{addExtData2_sf}.   Additionally, 
 #' certain areas can be set to exclude stations the inclusion of an additional sf object.
-#' @param stationData default is \code{NULL}.  This is the path to a csv file containing the all of 
-#' the strata for which stations should be generated.  In addition to the strata, this file must 
-#' also include the fields  \code{"PRIMARY"}, \code{"SECONDARY"}, and \code{"ALTERNATE"}.  These 
-#' three fields should contain integers corresponding with how many of that type of station should 
-#' be generated.  If no stations of a particular type should be generated, a value of NA should be 
-#' present. Strata where \code{PRIMARY} is set to NA will not have any stations generated. Below is 
-#' an example of how this file might look:
+#' @param stationData default is \code{NULL}.  This is either 1) the path to a csv file or 2) an
+#' existing r dataframe containing the all of the strata for which stations should be generated .  
+#' In addition to the strata, this file must also include the fields  \code{"PRIMARY"}, 
+#' \code{"SECONDARY"}, and \code{"ALTERNATE"}.  These three fields should contain integers 
+#' corresponding with how many of that type of station should be generated.  If no stations of a 
+#' particular type should be generated, a value of NA should be present. Strata where \code{PRIMARY} 
+#' is set to NA will not have any stations generated. Below is an example of how this file might 
+#' look:
 #' > head(stationFile)
 #'   STRATUM PRIMARY ALTERNATE SECONDARY
 #'       5Z1       6         3         4
