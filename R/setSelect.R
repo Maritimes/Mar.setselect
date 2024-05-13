@@ -86,7 +86,11 @@ setSelect <- function(
   timestamp <- format(Sys.time(),"%Y%m%d_%H%M")
   TYPE <- LABEL <- polygon_ <- NA 
   localCRS_ <- localCRS
-  stationData_ <- utils::read.csv(stationData)
+  if (is.character(stationData) && file.exists(stationData)){
+    stationData_ <- utils::read.csv(stationData)
+  }else{
+    stationData_ <- stationData
+  }
   stationDataField_ <- stationDataField
   strata_sf_ <- strata_sf %>% sf::st_transform(crs = localCRS_) 
   strataField_ <- strataField

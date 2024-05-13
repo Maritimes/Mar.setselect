@@ -1,11 +1,28 @@
-library(Mar.setselect)
-avoidAreaSf <- sf::st_read("C:/Users/McMahonM/OneDrive - DFO-MPO/Support/Groups/Groundfish/SetSelector/exclusionAreas/20230626/avoidAreas_0Buff_Dissolve.shp", quiet = T)
-oceansSf    <- sf::st_read("C:/git/Maritimes/Mar.setSelectData/oceansAreas/oceansAreas.shp", quiet = T)
-Summer_2024<- setSelect(stationData = "C:/Users/McMahonM/Downloads/Summer_4VWX5Z_Stations2024.csv",
-                        stationDataField = "STRATUM",
-                        strata_sf = Mar.data::Strata_Mar_sf,strataField = "StrataID",
-                        addExtData1_sf = Mar.data::NAFOSubunits_sf, addExtDataFields1 = "NAFO",
-                        addExtData2_sf = oceansSf, addExtDataFields2 = c("NAME_E","ZONE_E", "URL_E", "REGULATION"), 
-                        avoid_sf = avoidAreaSf)
 
-head(avoidAreaSf)
+library(sf)
+
+quebecStations <- "C:/Users/McMahonM/OneDrive - DFO-MPO/Support/Individuals/ChamberlainJ/QUE_Example/inputs/QuebecExample.csv"
+quebecStrata_sf <- sf::st_read("C:/Users/McMahonM/OneDrive - DFO-MPO/Support/Individuals/ChamberlainJ/QUE_Example/inputs/strataQuebec.shp", quiet = T)
+# L'identifiant de notre strate est "StratumID"
+quebecAvoid_sf  <- sf::st_read("C:/Users/McMahonM/OneDrive - DFO-MPO/Support/Individuals/ChamberlainJ/QUE_Example/inputs/noTrawlQuebec.shp", quiet = T)
+# Les noms des champs ne nous intéressent pas ici.  Nous voulons simplement éviter ces zones - \
+# aucune station ne doit se trouver à l'intérieur de ces polygones.  Si vous disposez d'un csv (
+#c'est-à-dire d'un point), vous pouvez simplement les tamponner dans un SIG et en faire des 
+#polygones ?
+quebecMPAs_sf   <- sf::st_read("C:/Users/McMahonM/OneDrive - DFO-MPO/Support/Individuals/ChamberlainJ/QUE_Example/inputs/mpaQuebec.shp", quiet = T)
+# Dans mon exemple ci-dessous, nous voulons que les champs suivants soient ajoutés aux données de 
+# sortie pour tous les points situés à l'intérieur de ces polygones:
+# c("NAME_E", "URL_E", "ZONE_E")
+quebecNAFO_sf   <- Mar.data::NAFOSubunits_sf
+#Ce n'est pas sur l'image, mais si vous voulez ajouter des champs d'un autre fichier, vous pouvez 
+# le faire.  Dans mon exemple, je vais ajouter le champ "NAFO" de mon fichier "quebecNAFO_sf"
+
+#devtools::install_github('Maritimes/Mar.setselect')
+library(Mar.setselect)
+QueExample<- setSelect(stationData = quebecStations, stationDataField = "STRATUM",
+                        strata_sf = quebecStrata_sf, strataField = "StratumID",
+                        addExtData1_sf = quebecMPAs_sf, addExtDataFields1 = c("NAME_E","ZONE_E", "URL_E", "REGULATION"),
+                        addExtData2_sf = quebecNAFO_sf, addExtDataFields2 = "NAFO", 
+                        avoid_sf = quebecAvoid_sf, 
+                        tryXTimes = 100, minDistNM = 3)
+
