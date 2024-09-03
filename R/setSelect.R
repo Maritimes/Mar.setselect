@@ -51,6 +51,8 @@
 #' \code{addExtData2_sf}, this should correspond with one or more fields within that file.  If a 
 #' set falls within a particular polygon, the value for that polygon from these fields will be 
 #' provided as part of the output.
+#' @param outName This is the name of the output file excel that will be generated and/or the name of a 
+#' layer withing a gpkg file.
 #' @param writexls  default is \code{TRUE}. Write the results to an excel file in your working 
 #' directory?
 #' @param writegpkg  default is \code{TRUE}. Write the results to a spatial gpkg file in your 
@@ -78,12 +80,12 @@ setSelect <- function(
     addExtData1_sf = NULL, addExtDataFields1 =NULL,
     addExtData2_sf=NULL, addExtDataFields2 =NULL,
     avoid_sf = NULL,
+    outName = NULL,
     writexls = TRUE,
     writegpkg =TRUE,
     localCRS = 2961,
     minDistNM = 4,
     tryXTimes = 100){
-  
   timestamp <- format(Sys.time(),"%Y%m%d_%H%M")
   TYPE <- LABEL <- polygon_ <- NA 
   localCRS_ <- localCRS
@@ -137,8 +139,14 @@ setSelect <- function(
   
   # Clips the areas of x out of y
   # st_erase from https://bit.ly/3WuRj1b
-  st_erase <- function(x, y) sf::st_difference(x, sf::st_union(sf::st_combine(y)))
-  
+  # st_erase <- function(x, y) sf::st_difference(x, sf::st_union(sf::st_combine(y)))
+  st_erase = function(x, y) {
+    sf::st_difference(
+      sf::st_geometry(x) %>% sf::st_buffer(0),
+      sf::st_union(sf::st_combine(sf::st_geometry(y))) %>% sf::st_buffer(0)
+    )
+  }
+  # 
   #handle submitted station data - replace "NA" and 0 with NA, and convert fields to numeric/character as appropriate
   stationData_[, setdiff(names(stationData_), "filterField_")] <- lapply(stationData_[, setdiff(names(stationData_), "filterField_")], function(x) {
     ifelse(x %in% c(0, "NA"), NA, x)
@@ -150,14 +158,27 @@ setSelect <- function(
   #create filtered version of strata file of only those strata present in the stationData_ csv and add the stationData_ into the sf
   filtStrata <- strata_sf_[strata_sf_$filterField_ %in% stationData_$filterField_,]
   filtStrata <- merge(filtStrata, stationData_, all.x=T, by.x="filterField_", by.y="filterField_")
+  filtStrata <- sf::st_set_geometry(filtStrata, sf::st_geometry(filtStrata))
+
   if(!is.null(avoid_sf)){
-    # remove untrawlable areas from the selected strata prior to station selection
-    # generates warning "attribute variables are assumed to be spatially constant throughout all geometries"
-    avoid_sf <- avoid_sf %>% sf::st_transform(crs = localCRS_) 
+    avoid_sf <- avoid_sf %>% sf::st_transform(crs = localCRS_)
+    avoid_sf <- sf::st_set_geometry(avoid_sf, sf::st_geometry(avoid_sf))
+    overlapping_areas <- sf::st_intersection(avoid_sf, filtStrata)
     
-    filtStrata <- suppressWarnings(st_erase(filtStrata, avoid_sf))
+    # filtStrata <- st_cast(filtStrata, "MULTIPOLYGON")
+    # overlapping_areas <- st_cast(overlapping_areas, "MULTIPOLYGON")
+    overlapping_areas_sp <- as(overlapping_areas, "Spatial")
+    overlapping_areas_sp <- cleangeo::clgeo_Clean(overlapping_areas_sp)
+    overlapping_areas <- sf::st_as_sf(overlapping_areas_sp)
+    
+    filtStrata_sp <- as(filtStrata, "Spatial")
+    filtStrata_sp <- cleangeo::clgeo_Clean(filtStrata_sp)
+    filtStrata <- sf::st_as_sf(filtStrata_sp)
+    
+    filtStrata2 <- st_erase(filtStrata, overlapping_areas)
+
+    # filtStrata <- sf::st_difference(filtStrata, avoid_sf)
   }
-  
   allStrat <- unique(sf::st_drop_geometry(filtStrata$filterField_))
   stations <-list()
   failed = FALSE
@@ -242,9 +263,7 @@ setSelect <- function(
   
   if (!is.null(addExtData1_sf)){
     moreAreas1<- sf::st_drop_geometry(stations)
-    
     moreAreas1 <- moreAreas1[,c("LABEL","LAT_DD", "LON_DD")]
-    
     ext1 <- addExtData1_sf %>% sf::st_transform(crs = localCRS_) 
     for (i in 1:length(addExtDataFields1)){
       moreAreas1 <- Mar.utils::identify_area(moreAreas1, lat.field = "LAT_DD", lon.field = "LON_DD", agg.poly.shp = ext1, agg.poly.field = addExtDataFields1[i])
@@ -253,24 +272,26 @@ setSelect <- function(
     moreAreas1$LAT_DD <- moreAreas1$LON_DD <- NULL
     stations <- merge(stations, moreAreas1, by="LABEL")
   }
-  
   if (!is.null(addExtData2_sf)){
     moreAreas2 <- sf::st_drop_geometry(stations)
     moreAreas2 <- moreAreas2[,c("LABEL","LAT_DD", "LON_DD")]
-    addlAreas <- addExtData2_sf %>% sf::st_transform(crs = localCRS_) 
+    ext2 <- addExtData2_sf %>% sf::st_transform(crs = localCRS_) 
     for (n in 1:length(addExtDataFields2)){
-      moreAreas2 <- Mar.utils::identify_area(moreAreas2, lat.field = "LAT_DD", lon.field = "LON_DD", agg.poly.shp = addlAreas, agg.poly.field = addExtDataFields2[n] )
-      
+      moreAreas2 <- Mar.utils::identify_area(moreAreas2, lat.field = "LAT_DD", lon.field = "LON_DD", agg.poly.shp = ext2, agg.poly.field = addExtDataFields2[n] )
     }
     moreAreas2[moreAreas2=="<outside known areas>"]<-NA
     moreAreas2$LAT_DD <- moreAreas2$LON_DD <- NULL
     stations <- merge(stations, moreAreas2, by="LABEL")
   }
   
-  #write files
-  # sf::st_write(stations, paste0("stations_",timestamp,".shp"), delete_layer = TRUE) 
-  if (writexls) xlsx::write.xlsx2(as.data.frame(stations %>% sf::st_drop_geometry()) , paste0("stations_",timestamp,".xlsx"), sheetName = "stations", col.names = TRUE, row.names = FALSE, append = FALSE)
-  if (writegpkg) stations <- sf::st_write(stations, dsn = paste0(getwd(), "/setSelect.gpkg"), "stations", append = F, delete.dsn=T)
+
+  if (!is.null(outName)){
+    outFile<- paste0(outName, "_setSelect_",timestamp)
+  }else{
+    outFile<- paste0("setSelect_",timestamp)
+  }
+  if (writexls) xlsx::write.xlsx2(as.data.frame(stations %>% sf::st_drop_geometry()) , paste0(outFile,".xlsx"), sheetName = "setSelect", col.names = TRUE, row.names = FALSE, append = FALSE)
+  if (writegpkg) stations <- sf::st_write(stations, dsn = paste0(getwd(), "/setSelect.gpkg"), outFile, append = F, delete.dsn=T)
   if (writexls | writegpkg) message("wrote excel and/or gpkg files to ", getwd())
   return(stations)
 }

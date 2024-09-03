@@ -14,6 +14,7 @@ setSelect(
   addExtData2_sf = NULL,
   addExtDataFields2 = NULL,
   avoid_sf = NULL,
+  outName = NULL,
   writexls = TRUE,
   writegpkg = TRUE,
   localCRS = 2961,
@@ -69,6 +70,9 @@ provided as part of the output.}
 where stations should not be located.   For example, one might populate a file with areas known 
 to contain unexploded ordinance, or areas where bottom contact  is forbidden.  No stations will 
 be generated where polygons exist in this file.}
+
+\item{outName}{This is the name of the output file excel that will be generated and/or the name of a 
+layer withing a gpkg file.}
 
 \item{writexls}{default is \code{TRUE}. Write the results to an excel file in your working 
 directory?}
