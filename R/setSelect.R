@@ -60,14 +60,24 @@
 #' @param tryXTimes default is \code{100}  By default, the script will make this many attempts to 
 #' fit the requested number of stations into each strata. 
 #' @examples \dontrun{
-#' Example <-setSelect(stationData = "C:/Users/McMahonM/Downloads/Summer_4VWX5Z_Stations2024.csv",
-#'                     stationDataField = "STRATUM",
-#'                     strata_sf = Mar.data::Strata_Mar_sf,strataField = "StrataID",
-#'                     addExtData1_sf = Mar.data::NAFOSubunits_sf, 
-#'                     addExtDataFields1 = "NAFO",
-#'                     addExtData2_sf = oceansSf, 
-#'                     addExtDataFields2 = c("NAME_E","ZONE_E", "URL_E", "REGULATION"),
-#'                     avoid_sf = avoidAreaSf)
+#' Spring_4X_2025 <- setSelect(stationData = "c:/Users/McMahonM/OneDrive - DFO-MPO/Support/!group_Groundfish/SetSelector/2025/Spring_4X_RM.csv",
+#'                             outName =  "Spring_4X_2025",
+#'                             stationDataField = "STRATUM",
+#'                             strata_sf = Mar.data::Strata_Mar_sf, strataField = "StrataID", 
+#'                             addExtData1_sf = Mar.data::NAFOSubunits_sf, addExtDataFields1 = "NAFO",
+#'                             addExtData2_sf = oceans_areas_sf, 
+#'                             addExtDataFields2 = c("NAME_E","ZONE_E"), 
+#'                             avoid_sf = this_avoid_sf)
+#' 
+#' 
+#' Georges_5Z_2025 <- setSelect(stationData = "c:/Users/McMahonM/OneDrive - DFO-MPO/Support/!group_Groundfish/SetSelector/2025/Georges_5Z_RM.csv.csv",
+#'                              outName =  "Georges_5Z_2025",
+#'                              stationDataField = "STRATUM",
+#'                              strata_sf = Mar.data::Strata_Mar_sf, strataField = "StrataID", 
+#'                              addExtData1_sf = Mar.data::NAFOSubunits_sf, addExtDataFields1 = "NAFO",
+#'                              addExtData2_sf = oceans_areas_sf, 
+#'                              addExtDataFields2 = c("NAME_E","ZONE_E"), 
+#'                              avoid_sf = this_avoid_sf)
 #'                        }
 #' @author  Mike McMahon, \email{Mike.McMahon@@dfo-mpo.gc.ca}
 #' @importFrom dplyr %>%

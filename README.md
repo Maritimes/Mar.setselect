@@ -3,10 +3,10 @@
 This package consists of a single function that was created to assist with the task of randomly 
 assigning set locations with strata.  At a minimum, the "setselect" function accepts 4 parameters:
 
-#. a csv file like the one below (i.e. "stationData"); 
-#. a string identifying the strata field within the csv file (i.e. "stationDataField");
-#. an sf polygon file (i.e. "strata_sf"); and
-#. a string identifying the strata field within the sf polygon (i.e. "strataField").
+- **stationData**:  a csv file like the one below; 
+- **stationDataField**: a string identifying the strata field within the csv file;
+- **strata_sf**: an sf polygon file; and
+- **strataField**: a string identifying the strata field within the sf polygon.
   
 It uses this information to randomly select a user-specified number of "stations" within each 
 polygon (or "stratum").
@@ -20,6 +20,7 @@ polygon (or "stratum").
 |      5Z2 |     11 |        6 |       NA|
 |      5Z3 |      5 |        2 |        2|
 |      5Z4 |      4 |        2 |        2|
+|      ... |    ... |      ... |      ...|
 
 As shown above, each Stratum has a unique identifier (e.g. "5Z2"), and for each stratum, the user 
 can specify the number of Primary, Secondary and Alternate stations that should be generated.
@@ -54,7 +55,7 @@ positions will be at least 4 nautical miles apart, but that value can be changed
 
 This function requires the provision of a value for "localCRS", and any sf objects supplied to it 
 will be reprojected as part of the process.  localCRS defaults to 2961, which corresponds with UTM 
-Zone 20N, and is appropriate for appropriate for the Maritimes.  
+Zone 20N, and is appropriate for the Maritimes/Scotian Shelf.  
 
 ### Example
 ```{r, example, eval=F}
@@ -62,8 +63,9 @@ avoidAreaSf <- sf::st_read("C:/exclusionAreas/badBottom.shp")
 mpaSf    <- sf::st_read("C:/infoAreas/oceansAreas.shp")
 nafoSf   <- Mar.data::NAFOSubunits_sf
 Summer_2024<- setSelect(stationData = "C:/Users/McMahonM/Summer_4VWX5Z_Stations2024.csv",
-                        stationData_StratField = "STRATUM",
-                        strata_sf = Mar.data::Strata_Mar_sf,strata_sf_StratField = "StrataID",
+                        outName =  "Georges_5Z_2025",
+                        stationDataField = "STRATUM",
+                        strata_sf = Mar.data::Strata_Mar_sf,strataField = "StrataID",
                         addExtData1_sf = nafoSf, addExtDataFields1 = "NAFO",
                         addExtData2_sf = mpaSf, addExtDataFields2 = c("NAME_E","ZONE_E", "URL_E", "REGULATION"), 
                         avoid_sf = avoidAreaSf)

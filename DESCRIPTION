@@ -1,6 +1,6 @@
 Package: Mar.setselect
 Title: Mar.setselect: tool for choosing set locations for random stratified survey
-Version: 2024.04.19
+Version: 2024.09.04
 Authors@R: c( person("Mike", "McMahon", email="Mike.McMahon@dfo-mpo.gc.ca", role=c("aut", "cre")) )
 Maintainer: Mike McMahon <Mike.McMahon@dfo-mpo.gc.ca>
 Description: .
