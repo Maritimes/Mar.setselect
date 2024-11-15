@@ -175,20 +175,16 @@ setSelect <- function(
     avoid_sf <- sf::st_set_geometry(avoid_sf, sf::st_geometry(avoid_sf))
     overlapping_areas <- sf::st_intersection(avoid_sf, filtStrata)
     
-    # filtStrata <- st_cast(filtStrata, "MULTIPOLYGON")
-    # overlapping_areas <- st_cast(overlapping_areas, "MULTIPOLYGON")
-    overlapping_areas_sp <- as(overlapping_areas, "Spatial")
-    overlapping_areas_sp <- cleangeo::clgeo_Clean(overlapping_areas_sp)
-    overlapping_areas <- sf::st_as_sf(overlapping_areas_sp)
-    
     filtStrata_sp <- as(filtStrata, "Spatial")
     filtStrata_sp <- cleangeo::clgeo_Clean(filtStrata_sp)
     filtStrata <- sf::st_as_sf(filtStrata_sp)
-    
-    filtStrata2 <- st_erase(filtStrata, overlapping_areas)
 
+    tt <- st_erase(filtStrata, overlapping_areas)
+    filtStrata <- sf::st_sf(data = sf::st_drop_geometry(filtStrata), geometry = tt)
+    names(filtStrata) <- gsub("data.", "", names(filtStrata))
     # filtStrata <- sf::st_difference(filtStrata, avoid_sf)
   }
+
   allStrat <- unique(sf::st_drop_geometry(filtStrata$filterField_))
   stations <-list()
   failed = FALSE
@@ -248,7 +244,8 @@ setSelect <- function(
   }
   stations <- do.call(rbind, stations)
   stations <- sf::st_transform(x = stations, crs = 4326) 
-  stations <- cbind(stations, round(sf::st_coordinates(stations$geometry),6))
+  # if (!"geometry" %in% names(stations) & "geom" %in% names(stations)) stations$geometry <- stations$geom
+  stations <- cbind(stations, round(sf::st_coordinates(stations$geom),6))
   colnames(stations)[colnames(stations)=="X"] <- "LON_DD"
   colnames(stations)[colnames(stations)=="Y"] <- "LAT_DD"
   stations$LON_DDMM <- convert.dd.dddd(stations$LON_DD)

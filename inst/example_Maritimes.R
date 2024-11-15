@@ -28,3 +28,12 @@ Georges_5Z_2025 <- setSelect(stationData = "c:/Users/McMahonM/OneDrive - DFO-MPO
                               addExtData2_sf = oceans_areas_sf, 
                               addExtDataFields2 = c("NAME_E","ZONE_E"), 
                               avoid_sf = this_avoid_sf)
+
+SummerExample <- setSelect(stationData = "c:/Users/McMahonM/OneDrive - DFO-MPO/Support/!group_Groundfish/SetSelector/inst/Summer_4VWX5Z_Stations.csv",
+                             outName =  "SummerExample",
+                             stationDataField = "STRATUM",
+                             strata_sf = Mar.data::Strata_Mar_sf, strataField = "StrataID", 
+                             addExtData1_sf = Mar.data::NAFOSubunits_sf, addExtDataFields1 = "NAFO",
+                             addExtData2_sf = oceans_areas_sf, 
+                             addExtDataFields2 = c("NAME_E","ZONE_E"), 
+                             avoid_sf = this_avoid_sf)
